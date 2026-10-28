@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+.vite/
+*.tsbuildinfo
+
+# Environment / secrets (API keys must never be committed)
+.env
+.env.*
+!.env.example
+
+# Downloaded GTFS data and caches
+data/
+*.zip
+*.pb
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Test / coverage
+coverage/
+
+# Editors and OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Claude Code
+CLAUDE.md
+.claude/

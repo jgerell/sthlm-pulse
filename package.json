@@ -1,0 +1,14 @@
+{
+  "name": "sthlm-pulse",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Live map of every metro, bus, train, tram and ferry in Stockholm's public transport.",
+  "type": "module",
+  "workspaces": [
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {}
+}
