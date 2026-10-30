@@ -1,0 +1,1447 @@
+:root {
+  --bg: #0b0d12;
+  --panel: rgba(14, 17, 24, 0.72);
+  --border: rgba(255, 255, 255, 0.08);
+  --text: #e8eaf0;
+  --muted: #8a90a0;
+  --faint: #5a6070;
+  --accent: #6ec48c;
+  --accent-rgb: 110, 196, 140;
+  --warn: #d9a35a;
+  --warn-rgb: 217, 163, 90;
+  /* Translucent tints of the text color, for hovers, tracks and charts. */
+  --tint-rgb: 255, 255, 255;
+  --ring: rgba(14, 17, 24, 0.9);
+  --shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  --attrib-bg: rgba(14, 17, 24, 0.6);
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  /* Mirrored in main.ts for the map's padding. */
+  --sidebar-w: 300px;
+  font-family: "Barlow", system-ui, -apple-system, sans-serif;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --bg: #f2f1ed;
+  --panel: rgba(255, 255, 255, 0.82);
+  --border: rgba(20, 24, 32, 0.09);
+  --text: #1c1f26;
+  --muted: #5f6470;
+  --faint: #9a9ea8;
+  --accent: #1f8f4e;
+  --accent-rgb: 31, 143, 78;
+  --warn: #b7741c;
+  --warn-rgb: 183, 116, 28;
+  --tint-rgb: 20, 24, 32;
+  --ring: rgba(255, 255, 255, 0.95);
+  --shadow: 0 10px 30px rgba(20, 24, 32, 0.12);
+  --attrib-bg: rgba(255, 255, 255, 0.7);
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+#map {
+  position: fixed;
+  inset: 0;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+/* --- Sidebar ------------------------------------------------------------- */
+
+/* Full height on the left, like a desktop app. Holds everything that is
+   switched on and off; it slides out of view when closed. */
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  width: var(--sidebar-w);
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  transition: transform 0.3s var(--ease), visibility 0s;
+}
+
+:root[data-sidebar="collapsed"] .sidebar {
+  transform: translateX(-100%);
+  visibility: hidden;
+  transition: transform 0.3s var(--ease), visibility 0s 0.3s;
+}
+
+/* Lives outside the sidebar so it stays put while the sidebar slides. */
+.icon-button.sidebar-toggle {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 3;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.icon-button.sidebar-toggle svg {
+  width: 17px;
+  height: 17px;
+  stroke-width: 1.6;
+}
+
+/* With the sidebar closed, the toggle floats over the map as a small chip. */
+:root[data-sidebar="collapsed"] .icon-button.sidebar-toggle {
+  width: 36px;
+  height: 36px;
+  border-color: var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: var(--shadow);
+  color: var(--text);
+}
+
+.sidebar__header {
+  display: flex;
+  flex: none;
+  align-items: center;
+  height: 56px;
+  padding: 0 18px 0 52px;
+}
+
+.sidebar__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px 18px 18px;
+  scrollbar-width: thin;
+}
+
+.icon-button {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin: -4px -6px -4px 0;
+  border-radius: 50%;
+  color: var(--muted);
+  transition: background 0.15s, color 0.15s;
+}
+
+.icon-button:hover {
+  background: rgba(var(--tint-rgb), 0.08);
+  color: var(--text);
+}
+
+.icon-button svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.brand {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* --- Toggle groups ------------------------------------------------------- */
+
+.group + .group {
+  margin-top: 22px;
+}
+
+/* Information rather than settings, so it comes last, set apart. */
+.group--info {
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.group__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.group__title {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Column labels over the toggle chips. */
+.group__cols {
+  display: grid;
+  grid-template-columns: repeat(2, 36px);
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: var(--faint);
+}
+
+.group__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* --- Mode rows ----------------------------------------------------------- */
+
+.mode {
+  display: grid;
+  grid-template-columns: 34px 1fr 36px 36px;
+  align-items: center;
+  column-gap: 6px;
+  padding: 9px 0;
+}
+
+.mode + .mode {
+  border-top: 1px solid var(--border);
+}
+
+/* The mode's pictogram, with its line colors as a stripe underneath. */
+.mode__tile {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  overflow: hidden;
+  border-radius: 7px;
+  background: rgba(var(--tint-rgb), 0.07);
+  color: var(--text);
+}
+
+.pictogram {
+  width: 17px;
+  height: 17px;
+  margin-top: -3px;
+  fill: currentColor;
+}
+
+.mode__swatches {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  height: 3px;
+}
+
+.mode__swatches i {
+  flex: 1;
+  background: var(--c);
+}
+
+.mode__text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.mode__label {
+  font-size: 13.5px;
+}
+
+.mode__count {
+  font-size: 11.5px;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.mode__count b {
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.mode__tile,
+.mode__icon,
+.mode__text {
+  transition: opacity 0.15s;
+}
+
+.mode.is-off .mode__tile,
+.mode.is-off .mode__icon,
+.mode.is-off .mode__text {
+  opacity: 0.4;
+}
+
+/* Map options have one toggle, in the last column, tinted with the text color. */
+.mode--option {
+  --c: rgb(var(--tint-rgb));
+}
+
+.mode--option .chip {
+  grid-column: 4;
+}
+
+/* The station marker, as drawn on the map. */
+.mode__icon {
+  width: 9px;
+  height: 9px;
+  margin-left: 9px;
+  border: 1.5px solid var(--muted);
+  border-radius: 50%;
+  background: var(--bg);
+}
+
+/* The warning triangle. */
+.mode__icon.mode__icon--warning {
+  width: 11px;
+  height: 10px;
+  border: 0;
+  border-radius: 0;
+  background: var(--warn);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+/* Toggles take their mode's color (--c, set per row) when on. */
+.chip {
+  display: grid;
+  place-items: center;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--faint);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.chip:hover {
+  background: rgba(var(--tint-rgb), 0.05);
+  color: var(--text);
+}
+
+.chip[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--c) 45%, transparent);
+  background: color-mix(in srgb, var(--c) 16%, transparent);
+  color: var(--c);
+}
+
+.chip[aria-pressed="true"]:hover {
+  background: color-mix(in srgb, var(--c) 24%, transparent);
+}
+
+.chip:focus-visible {
+  outline: 2px solid rgba(var(--accent-rgb), 0.6);
+  outline-offset: 2px;
+}
+
+.chip svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+/* --- Today in figures ---------------------------------------------------- */
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(var(--tint-rgb), 0.03);
+}
+
+.stat__label {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.stat__value {
+  overflow: hidden;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.stat__sub {
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--faint);
+}
+
+/* --- Player -------------------------------------------------------------- */
+
+/* Clock, timeline and speed float at the bottom of the map, centered in the
+   part the sidebar doesn't cover. */
+.player {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 26px;
+  width: min(780px, calc(100vw - var(--sidebar-w) - 48px));
+  padding: 14px 20px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: var(--shadow);
+  transform: translateX(calc(-50% + var(--sidebar-w) / 2));
+  transition: transform 0.3s var(--ease), visibility 0s;
+}
+
+:root[data-sidebar="collapsed"] .player {
+  transform: translateX(-50%);
+}
+
+/* Hidden, the strip slides down off the screen. */
+:root[data-player="hidden"] .player {
+  visibility: hidden;
+  transform: translate(calc(-50% + var(--sidebar-w) / 2), calc(100% + 48px));
+  transition: transform 0.3s var(--ease), visibility 0s 0.3s;
+}
+
+:root[data-player="hidden"][data-sidebar="collapsed"] .player {
+  transform: translate(-50%, calc(100% + 48px));
+}
+
+/* A small handle on the strip's top edge that hides it. */
+.player__hide {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 22px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--panel);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  color: var(--muted);
+  transform: translateX(-50%);
+  transition: color 0.15s, background 0.15s;
+}
+
+.player__hide:hover {
+  color: var(--text);
+}
+
+/* While the strip is hidden: a chip with the time that brings it back. */
+.player-show {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--panel);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: var(--shadow);
+  font-size: 13px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(calc(-50% + var(--sidebar-w) / 2), 12px);
+  transition: opacity 0.2s, transform 0.3s var(--ease), visibility 0s 0.3s;
+}
+
+:root[data-sidebar="collapsed"] .player-show {
+  transform: translate(-50%, 12px);
+}
+
+:root[data-player="hidden"] .player-show {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(calc(-50% + var(--sidebar-w) / 2), 0);
+  transition: opacity 0.2s 0.15s, transform 0.3s var(--ease) 0.1s, visibility 0s;
+}
+
+:root[data-player="hidden"][data-sidebar="collapsed"] .player-show {
+  transform: translate(-50%, 0);
+}
+
+.player-show:hover {
+  background: rgba(var(--tint-rgb), 0.12);
+}
+
+.player__hide svg,
+.player-show svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.player__hide:focus-visible,
+.player-show:focus-visible {
+  outline: 2px solid rgba(var(--accent-rgb), 0.6);
+  outline-offset: 2px;
+}
+
+.player__now {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 140px;
+}
+
+/* Play/pause: the round button beside the clock. */
+.play {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: rgba(var(--tint-rgb), 0.06);
+  color: var(--text);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.play:hover {
+  background: rgba(var(--tint-rgb), 0.12);
+}
+
+.play.is-paused {
+  border-color: rgba(var(--accent-rgb), 0.5);
+  background: rgba(var(--accent-rgb), 0.14);
+  color: var(--accent);
+}
+
+.play:focus-visible {
+  outline: 2px solid rgba(var(--accent-rgb), 0.6);
+  outline-offset: 2px;
+}
+
+.play svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  margin: -3px 0 -3px -8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+.live i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 0 currentColor;
+  animation: pulse 2s ease-out infinite;
+}
+
+.live:disabled {
+  cursor: default;
+}
+
+.live.is-paused {
+  color: var(--warn);
+  background: rgba(var(--warn-rgb), 0.1);
+  transition: background 0.15s;
+}
+
+.live.is-paused:hover {
+  background: rgba(var(--warn-rgb), 0.18);
+}
+
+.live.is-paused i {
+  animation: none;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.6); }
+  70% { box-shadow: 0 0 0 7px rgba(var(--accent-rgb), 0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0); }
+}
+
+.clock {
+  margin-top: 8px;
+  font-size: 34px;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.total {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.total strong {
+  color: var(--text);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Timeline ------------------------------------------------------------ */
+
+.timeline {
+  --thumb: 12px;
+  position: relative;
+}
+
+.timeline__chart {
+  position: relative;
+  height: 30px;
+  /* Inset by half a thumb so the chart lines up with the slider's travel. */
+  margin: 0 calc(var(--thumb) / 2);
+}
+
+.timeline__area {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.timeline__area path {
+  fill: rgba(var(--tint-rgb), 0.09);
+}
+
+.timeline__area--played {
+  clip-path: inset(0 calc(100% - var(--progress, 0%)) 0 0);
+}
+
+.timeline__area--played path {
+  fill: rgba(var(--tint-rgb), 0.24);
+}
+
+.timeline__slider {
+  display: block;
+  width: 100%;
+  height: 18px;
+  margin: -6px 0 0;
+  background: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.timeline__slider::-webkit-slider-runnable-track {
+  height: 2px;
+  background: rgba(var(--tint-rgb), 0.14);
+  border-radius: 1px;
+}
+
+.timeline__slider::-moz-range-track {
+  height: 2px;
+  background: rgba(var(--tint-rgb), 0.14);
+  border-radius: 1px;
+}
+
+.timeline__slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: var(--thumb);
+  height: var(--thumb);
+  margin-top: -5px;
+  border-radius: 50%;
+  background: var(--text);
+  box-shadow: 0 0 0 3px var(--ring);
+  transition: transform 0.15s;
+}
+
+.timeline__slider::-moz-range-thumb {
+  width: var(--thumb);
+  height: var(--thumb);
+  border: 0;
+  border-radius: 50%;
+  background: var(--text);
+  box-shadow: 0 0 0 3px var(--ring);
+}
+
+.timeline__slider:hover::-webkit-slider-thumb,
+.timeline__slider:active::-webkit-slider-thumb {
+  transform: scale(1.2);
+}
+
+.timeline__slider:focus-visible {
+  outline: none;
+}
+
+.timeline__slider:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px var(--ring), 0 0 0 5px rgba(var(--tint-rgb), 0.5);
+}
+
+.timeline__ticks {
+  display: flex;
+  justify-content: space-between;
+  margin: 2px calc(var(--thumb) / 2 - 6px) 0;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  color: var(--faint);
+}
+
+/* --- Speed and theme ----------------------------------------------------- */
+
+/* Segmented controls: the playback speeds and the theme picker. */
+.speed,
+.themes {
+  display: grid;
+  gap: 2px;
+  padding: 3px;
+  background: rgba(var(--tint-rgb), 0.04);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.speed {
+  grid-template-columns: repeat(4, 44px);
+}
+
+.themes {
+  grid-template-columns: repeat(4, 1fr);
+  margin-top: 8px;
+}
+
+.speed button,
+.themes button {
+  padding: 6px 0;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  transition: background 0.15s, color 0.15s;
+}
+
+.speed button:hover,
+.themes button:hover {
+  color: var(--text);
+}
+
+.speed button.is-active,
+.themes button.is-active {
+  background: rgba(var(--tint-rgb), 0.1);
+  color: var(--text);
+}
+
+/* --- Vehicle card -------------------------------------------------------- */
+
+.vehicle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 300px;
+  /* Top offset, the player's height and a gap above it. */
+  max-height: calc(100vh - 180px);
+  padding: 16px 16px 14px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: var(--shadow);
+  font-size: 13px;
+}
+
+.vehicle[hidden] {
+  display: none;
+}
+
+.vehicle__header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.vehicle__badge {
+  min-width: 40px;
+  padding: 5px 9px;
+  border-radius: 8px;
+  background: var(--c);
+  color: var(--fg, #fff);
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  text-shadow: var(--fg-shadow, 0 1px 1px rgba(0, 0, 0, 0.2));
+}
+
+.vehicle__dest {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.vehicle__mode {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.vehicle__close {
+  align-self: start;
+}
+
+.vehicle__status {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.vehicle__status strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.vehicle__eta {
+  float: right;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.vehicle__follow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 10px;
+  padding: 7px 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(var(--tint-rgb), 0.04);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.vehicle__follow:hover {
+  background: rgba(var(--tint-rgb), 0.08);
+}
+
+.vehicle__follow.is-active {
+  border-color: rgba(var(--accent-rgb), 0.5);
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent);
+}
+
+.vehicle__follow svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.vehicle__stops {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+}
+
+/* Stops hang off a vertical line in the vehicle's color, like a route diagram. */
+.vehicle__stops li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 8px;
+  padding: 3px 0 3px 18px;
+}
+
+.vehicle__stops li::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--c);
+  opacity: 0.5;
+}
+
+.vehicle__stops li:first-child::before {
+  top: 50%;
+}
+
+.vehicle__stops li::after {
+  content: "";
+  position: absolute;
+  left: 1px;
+  top: calc(50% - 4px);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--c);
+  box-sizing: border-box;
+}
+
+.vehicle__stops li:first-child::after {
+  background: var(--c);
+}
+
+.vehicle__stops time {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.vehicle__more {
+  padding: 3px 0 0 18px;
+  font-size: 12px;
+  color: var(--faint);
+}
+
+.vehicle__foot {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--faint);
+}
+
+/* --- Station card -------------------------------------------------------- */
+
+/* A metro-map station symbol, standing in for the vehicle card's line badge. */
+.station__icon {
+  width: 22px;
+  height: 22px;
+  margin: 0 9px;
+  border: 3px solid var(--text);
+  border-radius: 50%;
+  background: var(--bg);
+}
+
+.station__stat {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.station__stat strong {
+  font-size: 26px;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+/* Vehicles per hour. Hours already passed are filled in, like the timeline. */
+.station__hours {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 34px;
+  margin-top: 8px;
+}
+
+.station__hours i {
+  flex: 1;
+  height: max(2px, calc(var(--h) * 100%));
+  border-radius: 2px 2px 0 0;
+  background: rgba(var(--tint-rgb), 0.12);
+}
+
+.station__hours i.is-past {
+  background: rgba(var(--tint-rgb), 0.28);
+}
+
+.station__hours i.is-now {
+  background: var(--accent);
+}
+
+.station__ticks {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 3px;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  color: var(--faint);
+}
+
+.station__heading {
+  margin: 16px 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.departures {
+  list-style: none;
+  margin: 0 -8px;
+  padding: 0;
+}
+
+.departure {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 5px 8px;
+  border-radius: 8px;
+  text-align: left;
+}
+
+button.departure:hover {
+  background: rgba(var(--tint-rgb), 0.06);
+}
+
+.departure__line,
+.station__line {
+  min-width: 30px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--c);
+  color: var(--fg, #fff);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  text-shadow: var(--fg-shadow, 0 1px 1px rgba(0, 0, 0, 0.2));
+}
+
+.departure__dest {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.departure__when {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+.station__empty {
+  margin: 0;
+  color: var(--faint);
+}
+
+.station__lines {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.station__more {
+  padding: 2px 4px;
+  font-size: 12px;
+  color: var(--faint);
+}
+
+/* --- Realtime ------------------------------------------------------------ */
+
+.delay {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.delay.is-ontime {
+  color: var(--accent);
+}
+
+.delay.is-late {
+  color: var(--warn);
+}
+
+.delay.is-early {
+  color: var(--muted);
+}
+
+.departure__late {
+  margin-right: 6px;
+  font-size: 11px;
+  color: var(--warn);
+}
+
+.departure.is-canceled .departure__dest {
+  text-decoration: line-through;
+  color: var(--faint);
+}
+
+.departure__canceled {
+  color: var(--warn);
+}
+
+/* --- Disruptions --------------------------------------------------------- */
+
+/* In the vehicle and station cards. */
+.card-alerts {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+}
+
+.card-alert {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(var(--tint-rgb), 0.05);
+  font-size: 12px;
+}
+
+.card-alert + .card-alert {
+  margin-top: 6px;
+}
+
+.card-alert.is-acute {
+  background: rgba(var(--warn-rgb), 0.12);
+}
+
+.card-alert strong {
+  display: block;
+  font-weight: 500;
+}
+
+/* A disruption: its icon on the left, then the text. */
+.alert-row {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: 9px;
+  align-items: start;
+}
+
+.alert-tile {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  color: var(--muted);
+}
+
+.is-acute > .alert-tile {
+  color: var(--warn);
+}
+
+.alert-tile .pictogram {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+/* The kind of disruption, e.g. "Förseningar" or "Flyttad hållplats". */
+.alert-tag {
+  display: inline-block;
+  margin-top: 3px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(var(--tint-rgb), 0.08);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.is-acute .alert-tag {
+  background: rgba(var(--warn-rgb), 0.16);
+  color: var(--warn);
+}
+
+/* Two lines until opened, so the departures keep their room. */
+.card-alert p {
+  display: -webkit-box;
+  margin: 4px 0 0;
+  overflow: hidden;
+  color: var(--muted);
+  line-height: 1.4;
+  white-space: pre-line;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.card-alert p.is-open {
+  display: block;
+}
+
+.card-alert__more {
+  margin-top: 3px;
+  padding: 0;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: rgba(var(--tint-rgb), 0.3);
+  text-underline-offset: 3px;
+}
+
+.card-alert__more:hover {
+  text-decoration-color: currentColor;
+}
+
+/* Hovering a warning icon on the map. */
+.map-tooltip {
+  max-width: 260px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: var(--shadow);
+  font-family: "Barlow", system-ui, sans-serif;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--text);
+}
+
+.map-tooltip strong {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.map-tooltip ul {
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.map-tooltip li + li {
+  margin-top: 6px;
+}
+
+.map-tooltip .alert-tag {
+  margin: 0 0 0 4px;
+}
+
+.map-tooltip__more,
+.map-tooltip__hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--faint);
+}
+
+/* --- Loading ------------------------------------------------------------- */
+
+.loading {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 13px;
+  transition: opacity 0.8s ease;
+}
+
+.loading.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading__pulse {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 1.6s ease-out infinite;
+}
+
+/* --- Map controls -------------------------------------------------------- */
+
+.maplibregl-ctrl-attrib {
+  background: var(--attrib-bg) !important;
+  color: var(--faint);
+}
+
+.maplibregl-ctrl-attrib a {
+  color: var(--muted) !important;
+}
+
+.maplibregl-ctrl-attrib-button {
+  filter: invert(1) opacity(0.6);
+}
+
+:root[data-theme="light"] .maplibregl-ctrl-attrib-button {
+  filter: opacity(0.6);
+}
+
+/* --- Medium screens ------------------------------------------------------ */
+
+/* When the player gets narrow (the sidebar open on a medium screen, or any
+   screen below ~820px), the timeline moves to a row of its own below the
+   clock and speeds, so it keeps its width. */
+@media (max-width: 1100px) {
+  :root:not([data-sidebar="collapsed"]) .player {
+    grid-template-columns: 1fr auto;
+    gap: 10px 16px;
+  }
+
+  :root:not([data-sidebar="collapsed"]) .player .timeline {
+    grid-column: 1 / -1;
+  }
+
+  :root:not([data-sidebar="collapsed"]) .speed {
+    grid-row: 1;
+    grid-column: 2;
+    align-self: start;
+  }
+}
+
+@media (max-width: 820px) {
+  .player {
+    grid-template-columns: 1fr auto;
+    gap: 10px 16px;
+  }
+
+  .player .timeline {
+    grid-column: 1 / -1;
+  }
+
+  .speed {
+    grid-row: 1;
+    grid-column: 2;
+    align-self: start;
+  }
+}
+
+/* --- Small screens ------------------------------------------------------- */
+
+@media (max-width: 640px) {
+  /* The sidebar becomes a drawer over the map, the player spans the bottom,
+     and the vehicle card moves to the top below the toggle. */
+  .sidebar {
+    --sidebar-w: min(300px, 86vw);
+    box-shadow: var(--shadow);
+  }
+
+  :root[data-sidebar="collapsed"] .sidebar {
+    box-shadow: none;
+  }
+
+  :root[data-sidebar="collapsed"] .icon-button.sidebar-toggle {
+    top: 12px;
+    left: 12px;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+  }
+
+  .player,
+  :root[data-sidebar="collapsed"] .player {
+    left: 12px;
+    right: 12px;
+    bottom: 40px;
+    gap: 10px 12px;
+    width: auto;
+    padding: 12px 14px;
+    transform: none;
+  }
+
+  :root[data-player="hidden"] .player,
+  :root[data-player="hidden"][data-sidebar="collapsed"] .player {
+    transform: translateY(calc(100% + 56px));
+  }
+
+  .player-show,
+  :root[data-player="hidden"] .player-show,
+  :root[data-player="hidden"][data-sidebar="collapsed"] .player-show {
+    bottom: 40px;
+    transform: translateX(-50%);
+  }
+
+  .player__now {
+    min-width: 0;
+  }
+
+  .clock {
+    font-size: 28px;
+  }
+
+  .speed {
+    grid-template-columns: repeat(4, 40px);
+  }
+
+  .play {
+    width: 34px;
+    height: 34px;
+  }
+
+  .vehicle {
+    top: 64px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-height: 45vh;
+  }
+}

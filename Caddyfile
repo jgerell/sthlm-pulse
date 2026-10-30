@@ -1,0 +1,5 @@
+# SITE_ADDRESS is a domain (HTTPS certificate fetched automatically) or ":80"
+# to serve plain HTTP on the server's IP address.
+{$SITE_ADDRESS::80} {
+	reverse_proxy app:4280
+}

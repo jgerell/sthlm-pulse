@@ -10,5 +10,15 @@
   "engines": {
     "node": ">=22"
   },
-  "scripts": {}
+  "scripts": {
+    "dev": "concurrently -n server,web -c blue,magenta \"npm run dev -w @sthlm-pulse/server\" \"npm run dev -w @sthlm-pulse/web\"",
+    "dev:server": "npm run dev -w @sthlm-pulse/server",
+    "dev:web": "npm run dev -w @sthlm-pulse/web",
+    "build": "npm run build -w @sthlm-pulse/web",
+    "start": "npm start -w @sthlm-pulse/server",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6"
+  }
 }

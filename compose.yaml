@@ -1,0 +1,37 @@
+# Production: the app behind Caddy, which handles HTTPS.
+# Keys and SITE_ADDRESS come from .env (see .env.example).
+#   docker compose up -d --build
+
+services:
+  app:
+    build: .
+    env_file: .env
+    environment:
+      API_PORT: "4280"
+    volumes:
+      - data:/app/data
+    init: true
+    restart: unless-stopped
+    logging: &logging
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  caddy:
+    image: caddy:2.10
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy:/data
+    depends_on:
+      - app
+    restart: unless-stopped
+    logging: *logging
+
+volumes:
+  data:
+  caddy:

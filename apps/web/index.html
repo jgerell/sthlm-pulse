@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b0d12" />
+    <script>
+      // Apply the saved theme before first paint so the loading screen matches.
+      try {
+        // Visitors who haven't picked a theme follow the system.
+        let theme = localStorage.getItem("sthlm-pulse:theme") ?? "system";
+        if (theme === "system") {
+          theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        if (theme === "light" || theme === "neon") {
+          document.documentElement.dataset.theme = theme;
+        }
+      } catch {}
+      // And the time strip, if it was hidden.
+      try {
+        if (localStorage.getItem("sthlm-pulse:player") === "hidden") {
+          document.documentElement.dataset.player = "hidden";
+        }
+      } catch {}
+      // Same for the sidebar. Small screens always start with it closed.
+      try {
+        if (innerWidth <= 640 || localStorage.getItem("sthlm-pulse:sidebar") === "collapsed") {
+          document.documentElement.dataset.sidebar = "collapsed";
+        }
+      } catch {}
+    </script>
+    <title>sthlm pulse</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <button
+      class="icon-button sidebar-toggle"
+      id="sidebar-toggle"
+      type="button"
+      aria-controls="sidebar"
+      aria-expanded="true"
+      aria-label="Fäll in panelen"
+      title="Fäll in panelen"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="16" rx="3" />
+        <path d="M9.5 4v16" />
+      </svg>
+    </button>
+
+    <aside class="sidebar" id="sidebar">
+      <header class="sidebar__header">
+        <span class="brand">sthlm pulse</span>
+      </header>
+
+      <div class="sidebar__body">
+        <section class="group">
+          <div class="group__head">
+            <h2 class="group__title">Trafikslag</h2>
+            <span class="group__cols" aria-hidden="true"><span>Fordon</span><span>Linjer</span></span>
+          </div>
+          <ul class="group__list" id="modes"></ul>
+        </section>
+
+        <section class="group">
+          <h2 class="group__title">Karta</h2>
+          <ul class="group__list" id="map-options"></ul>
+        </section>
+
+        <section class="group">
+          <h2 class="group__title">Utseende</h2>
+          <div class="themes" id="theme-options" role="group" aria-label="Tema"></div>
+        </section>
+
+        <!-- Information rather than settings, so it comes last, set apart. -->
+        <section class="group group--info">
+          <h2 class="group__title">Idag i siffror</h2>
+          <ul class="stats" id="stats"></ul>
+        </section>
+      </div>
+    </aside>
+
+    <!-- Time controls float over the map so they stay visible with the sidebar closed. -->
+    <section class="player" id="player" aria-label="Tid">
+      <button
+        class="player__hide"
+        id="player-hide"
+        type="button"
+        aria-controls="player"
+        aria-expanded="true"
+        aria-label="Dölj tidslisten"
+        title="Dölj tidslisten"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9.5 6 6 6-6" /></svg>
+      </button>
+
+      <div class="player__now">
+        <button class="play" id="play-toggle" type="button" aria-label="Pausa" title="Pausa (mellanslag)"></button>
+        <div>
+          <button class="live" id="live-badge" type="button" disabled>
+            <i></i><span>Live</span>
+          </button>
+          <div class="clock" id="clock">--:--:--</div>
+          <div class="total"><strong id="total">0</strong> fordon i trafik</div>
+        </div>
+      </div>
+
+      <div class="timeline">
+        <div class="timeline__chart" id="activity" aria-hidden="true"></div>
+        <input
+          class="timeline__slider"
+          id="time"
+          type="range"
+          min="0"
+          max="86340"
+          step="60"
+          value="0"
+          aria-label="Tid på dygnet"
+        />
+        <div class="timeline__ticks" aria-hidden="true">
+          <span>00</span><span>06</span><span>12</span><span>18</span><span>24</span>
+        </div>
+      </div>
+
+      <div class="speed" role="group" aria-label="Uppspelningshastighet">
+        <button data-speed="1" class="is-active">1×</button>
+        <button data-speed="10">10×</button>
+        <button data-speed="60">60×</button>
+        <button data-speed="300">300×</button>
+      </div>
+    </section>
+
+    <!-- Stands in for the time strip while it is hidden. -->
+    <button
+      class="player-show"
+      id="player-show"
+      type="button"
+      aria-controls="player"
+      aria-label="Visa tidslisten"
+      title="Visa tidslisten"
+    >
+      <span id="player-show-clock">--:--</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14.5 6-6 6 6" /></svg>
+    </button>
+
+    <aside class="vehicle" id="vehicle" aria-live="polite" hidden></aside>
+
+    <div class="loading" id="loading">
+      <div class="loading__pulse"></div>
+      <span>Laddar Stockholms kollektivtrafik…</span>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

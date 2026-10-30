@@ -35,3 +35,8 @@ Thumbs.db
 # Claude Code
 CLAUDE.md
 .claude/
+
+# Local tool caches and design tool docs
+.impeccable/
+PRODUCT.md
+DESIGN.md
