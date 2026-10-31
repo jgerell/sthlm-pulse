@@ -43,6 +43,8 @@ interface TrainInfo {
 
 let vehicles: LiveVehicle[] = [];
 let fetchedAt = 0;
+/** Set once the first fetch has finished, successfully or not. */
+let loaded = false;
 let fetching: Promise<void> | null = null;
 /** By `${train number}/${departure date}`; null when Trafikverket had nothing. */
 const infos = new Map<string, { info: TrainInfo | null; at: number }>();
@@ -51,11 +53,9 @@ let stations: { names: Map<string, string>; at: number } | null = null;
 /** Trains in the area right now, refreshing them first if due. Empty without a key. */
 export async function currentTrains(): Promise<LiveVehicle[]> {
   if (!config.trafikverketKey) return [];
-  if (Date.now() - fetchedAt > POLL_MS) {
-    fetching ??= refresh().finally(() => (fetching = null));
-    // Serve the previous positions while new ones are on their way.
-    if (!fetchedAt) await fetching;
-  }
+  if (Date.now() - fetchedAt > POLL_MS) fetching ??= refresh().finally(() => (fetching = null));
+  // Serve the previous positions while new ones are on their way, except the very first time.
+  if (!loaded) await fetching;
   return vehicles;
 }
 
@@ -99,6 +99,7 @@ async function refresh(): Promise<void> {
   } catch (err) {
     console.error("Could not fetch train positions:", err);
   }
+  loaded = true;
 }
 
 function infoKey(p: Position): string {
