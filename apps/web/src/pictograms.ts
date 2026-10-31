@@ -18,6 +18,16 @@ export const PICTOGRAMS: Record<Mode, string> = {
   ferry: svg(`<path d="M10 4h3v3.5h-3Z"/><path fill-rule="evenodd" d="M6 8h11.5v5H6Zm1.6 1.5v2h2v-2Zm3.2 0v2h2v-2Zm3.2 0v2h2v-2Z"/><path d="M2.5 14h19l-2.6 4.5H5.1Z"/><path d="M2 20.2c1.7 0 1.7-.9 3.3-.9s1.7.9 3.4.9 1.6-.9 3.3-.9 1.7.9 3.3.9 1.7-.9 3.4-.9 1.6.9 3.3.9V22c-1.7 0-1.7-.9-3.3-.9s-1.7.9-3.4.9-1.6-.9-3.3-.9-1.7.9-3.3.9-1.7-.9-3.4-.9S3.7 22 2 22Z"/>`),
 };
 
+/** A long-distance train in profile: a pointed nose, a window band, the rails. */
+export const REGIONAL_PICTOGRAM = svg(
+  `<path fill-rule="evenodd" d="M2 7h11c4.4 0 8 3 8.9 7.4a.9.9 0 0 1-.9 1.1H2Zm0 2.5v3h9v-3Zm11 0v3h5.6a6.4 6.4 0 0 0-4.3-3Z"/><path d="M2 17.5h20V19H2Z"/>`,
+);
+
+/** A road ferry: a flat hull with a car on deck, over a line of water. */
+export const ROAD_FERRY_PICTOGRAM = svg(
+  `<path fill-rule="evenodd" d="M7.2 6h7.1c.6 0 1.1.3 1.4.8l1.6 2.7h.7a1 1 0 0 1 1 1v2H5v-2a1 1 0 0 1 1-1h.1l.7-2.5c.1-.6.7-1 1.4-1Zm.6 1.8-.5 1.7h7.9l-1-1.7Z"/><path d="M2 13.5h20l-2.2 4H4.2Z"/><path d="M2 20.2c1.7 0 1.7-.9 3.3-.9s1.7.9 3.4.9 1.6-.9 3.3-.9 1.7.9 3.3.9 1.7-.9 3.4-.9 1.6.9 3.3.9V22c-1.7 0-1.7-.9-3.3-.9s-1.7.9-3.4.9-1.6-.9-3.3-.9-1.7.9-3.3.9-1.7-.9-3.4-.9S3.7 22 2 22Z"/>`,
+);
+
 /** A warning triangle with an exclamation mark cut out. */
 export const WARNING_PICTOGRAM = svg(
   `<path fill-rule="evenodd" d="M12 3 22 20.5H2Zm-1 6v5.5h2V9Zm0 7v2h2v-2Z"/>`,

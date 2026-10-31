@@ -3,6 +3,8 @@ import { createServer, type ServerResponse } from "node:http";
 import { gzipSync } from "node:zlib";
 import { currentAlerts } from "./gtfs/alerts.js";
 import { currentDelays } from "./gtfs/realtime.js";
+import { ferriesFor } from "./ferries/ferries.js";
+import { liveVehicles } from "./live/vehicles.js";
 import { dailyStats } from "./schedule/stats.js";
 import { stationDetails, tripDetails, tripsInWindow, type Network } from "./schedule/network.js";
 import { webApp } from "./web.js";
@@ -112,6 +114,29 @@ export function startHttpServer(getNetwork: () => Network, port: number, webDir:
         (err) => {
           console.error(err);
           res.writeHead(500, { "Content-Type": "text/plain" }).end("Alerts unavailable");
+        },
+      );
+      return;
+    }
+
+    if (url.pathname === "/api/ferries") {
+      ferriesFor(serviceDate).then(
+        (ferries) => sendGzippedJson(res, gzipSync(JSON.stringify({ serviceDate, ...ferries })), "no-cache"),
+        (err) => {
+          console.error(err);
+          res.writeHead(500, { "Content-Type": "text/plain" }).end("Ferries unavailable");
+        },
+      );
+      return;
+    }
+
+    // Not tied to the network: GPS positions, only used in live mode.
+    if (url.pathname === "/api/live") {
+      liveVehicles().then(
+        (vehicles) => sendGzippedJson(res, gzipSync(JSON.stringify({ vehicles })), "no-cache"),
+        (err) => {
+          console.error(err);
+          res.writeHead(500, { "Content-Type": "text/plain" }).end("Live vehicles unavailable");
         },
       );
       return;

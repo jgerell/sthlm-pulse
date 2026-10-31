@@ -40,4 +40,6 @@ export const config = {
     /** Optional: without it the map runs on the timetable alone. */
     realtimeKey: process.env.TRAFIKLAB_GTFS_RT_KEY || null,
   },
+  /** Optional: Trafikverket's open API, for regional and long-distance trains. */
+  trafikverketKey: process.env.TRAFIKVERKET_API_KEY || null,
 };

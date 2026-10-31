@@ -139,6 +139,44 @@ export async function fetchDelays(): Promise<Delays> {
   return res.json();
 }
 
+/** Trafikverket's road ferries for the day (see apps/server/src/ferries/ferries.ts). */
+export interface Ferries {
+  serviceDate: string;
+  routes: { name: string; harbors: [string, string]; path: [number, number][] }[];
+  /** Flat [route, direction, departure, arrival, ...]; direction 1 runs against the route's path. */
+  trips: number[];
+}
+
+export async function fetchFerries(): Promise<Ferries> {
+  const res = await fetch("/api/ferries");
+  if (!res.ok) throw new Error(`Failed to load ferries: HTTP ${res.status}`);
+  return res.json();
+}
+
+/** A vehicle placed by GPS (see apps/server/src/live/vehicles.ts). */
+export interface LiveVehicle {
+  id: string;
+  kind: "train";
+  lon: number;
+  lat: number;
+  /** Degrees clockwise from north. */
+  bearing: number | null;
+  /** km/h. */
+  speed: number | null;
+  /** When the position was measured (Unix seconds). */
+  time: number;
+  name: string;
+  operator: string;
+  from: string;
+  to: string;
+}
+
+export async function fetchLive(): Promise<LiveVehicle[]> {
+  const res = await fetch("/api/live");
+  if (!res.ok) throw new Error(`Failed to load live vehicles: HTTP ${res.status}`);
+  return (await res.json()).vehicles;
+}
+
 export async function fetchStation(id: number): Promise<StationDetails> {
   const res = await fetch(`/api/station?id=${id}`);
   if (!res.ok) throw new Error(`Failed to load station ${id}: HTTP ${res.status}`);

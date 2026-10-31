@@ -11,7 +11,7 @@ export const THEME_ORDER: ThemeChoice[] = ["system", "dark", "light", "neon"];
 
 export type ColorKey =
   | "metroBlue" | "metroRed" | "metroGreen" | "rail"
-  | "tram" | "roslagsbanan" | "ferry" | "bus";
+  | "tram" | "roslagsbanan" | "ferry" | "bus" | "regional" | "roadFerry";
 
 const PALETTES: Record<Theme, Record<ColorKey, RGB>> = {
   // Muted versions of SL's line colors, so nothing glows against the dark map.
@@ -24,6 +24,8 @@ const PALETTES: Record<Theme, Record<ColorKey, RGB>> = {
     roslagsbanan: [150, 124, 200],
     ferry: [86, 168, 184],
     bus: [168, 164, 154],
+    regional: [196, 204, 104],
+    roadFerry: [232, 198, 72],
   },
   // SL's own line colors, like the printed network map.
   light: {
@@ -35,6 +37,8 @@ const PALETTES: Record<Theme, Record<ColorKey, RGB>> = {
     roslagsbanan: [140, 77, 160],
     ferry: [0, 150, 180],
     bus: [128, 130, 138],
+    regional: [122, 138, 18],
+    roadFerry: [200, 152, 0],
   },
   // Vivid colors meant for additive blending, where overlaps glow.
   neon: {
@@ -46,6 +50,8 @@ const PALETTES: Record<Theme, Record<ColorKey, RGB>> = {
     roslagsbanan: [180, 140, 255],
     ferry: [54, 214, 231],
     bus: [242, 227, 194],
+    regional: [214, 245, 92],
+    roadFerry: [255, 220, 64],
   },
 };
 

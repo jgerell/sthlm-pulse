@@ -833,6 +833,21 @@ button {
   text-shadow: var(--fg-shadow, 0 1px 1px rgba(0, 0, 0, 0.2));
 }
 
+/* GPS vehicles have no line number, so their badge shows the pictogram. */
+.live__badge {
+  display: grid;
+  place-items: center;
+  min-width: 40px;
+  height: 31px;
+}
+
+.live__badge .pictogram {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  fill: var(--fg, #fff);
+}
+
 .vehicle__dest {
   font-size: 15px;
   font-weight: 500;

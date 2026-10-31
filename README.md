@@ -11,6 +11,12 @@ of the day to the last.
 - **The whole network, live.** Roughly 35 000 trips a day, drawn along their
   real routes with fading trails. Vehicles stop at every station for a dwell
   time based on SL's GPS data.
+- **Regional and long-distance trains.** SJ, Mälartåg, Arlanda Express and
+  other trains outside SL, placed by GPS from Trafikverket. They have no
+  timetable here, so they appear in live mode only.
+- **Road ferries.** Trafikverket's yellow ferries in the archipelago and on
+  Mälaren (Vaxholmsleden, Ljusteröleden, Ekeröleden and more), from their
+  timetable.
 - **Realtime delays.** Each trip is shifted by how late it is running, and
   canceled trips disappear.
 - **Time travel.** Scrub to any time of day, pause, or play at 10×, 60× or
@@ -47,7 +53,9 @@ apps/
 You need Node 22 or later and a free API key from
 [Trafiklab](https://www.trafiklab.se) for **GTFS Regional Static**. A key for
 **GTFS Regional Realtime** is optional; without it the map runs on the
-timetable alone.
+timetable alone. So is a key for
+[Trafikverket's open API](https://data.trafikverket.se), which adds regional
+and long-distance trains and road ferries.
 
 ```bash
 cp .env.example .env    # add your Trafiklab keys
@@ -92,5 +100,7 @@ Browsers never talk to Trafiklab directly.
 ## Data
 
 Timetable and realtime data from SL via [Trafiklab](https://www.trafiklab.se).
+Train positions and ferry departures from [Trafikverket](https://data.trafikverket.se);
+ferry routes from OpenStreetMap.
 Map tiles © [CARTO](https://carto.com/attributions), map data ©
 [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors.

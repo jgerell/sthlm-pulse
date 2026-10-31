@@ -132,7 +132,10 @@ function pointAtDistance(coords: number[], dist: number[], d: number): [number, 
 }
 
 /** Current position of a trip at time t, or null if it isn't running. */
-export function positionAt(trip: AnimatedTrip, t: number): [number, number] | null {
+export function positionAt(
+  trip: Pick<AnimatedTrip, "start" | "end" | "path" | "timestamps">,
+  t: number,
+): [number, number] | null {
   if (t < trip.start || t > trip.end) return null;
   const ts = trip.timestamps;
   const i = Math.max(1, Math.min(ts.length - 1, upperBound(ts, t)));
