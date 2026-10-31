@@ -6,7 +6,7 @@
 // a train follows a bend instead of cutting a straight chord across it.
 import type { LiveVehicle } from "./api";
 import { escapeHtml } from "./format";
-import { REGIONAL_PICTOGRAM } from "./pictograms";
+import { REGIONAL_PICTOGRAM, SHIP_PICTOGRAM } from "./pictograms";
 
 /** How far behind real time GPS vehicles are drawn, so the next fix is usually in. */
 export const LIVE_LAG_S = 30;
@@ -131,23 +131,30 @@ function curve(a: Fix, b: Fix, f: number): [number, number] {
   return [a.lon + x / kx, a.lat + y / M_PER_DEG_LAT];
 }
 
-/** The info card for a clicked train. */
+/** The info card for a clicked train or ship. */
 export function liveCardHtml(v: LiveVehicle, badge: string, close: string): string {
   const age = Math.max(0, Math.round(Date.now() / 1000 - v.time));
-  const route = v.from && v.to ? `${escapeHtml(v.from)} → ${escapeHtml(v.to)}` : "Okänd sträcka";
+  const ship = v.kind === "ship";
+  const subtitle = ship
+    ? [v.operator, v.length ? `${v.length} m` : "", v.to ? `mot ${escapeHtml(v.to)}` : ""].filter(Boolean).join(" · ")
+    : v.from && v.to ? `${escapeHtml(v.from)} → ${escapeHtml(v.to)}` : "Okänd sträcka";
+  // Ships' speed is given in knots, as at sea.
+  const speed = v.speed === null
+    ? "Hastighet okänd"
+    : ship ? `<strong>${(v.speed / 1.852).toFixed(1).replace(".", ",")} knop</strong>` : `<strong>${Math.round(v.speed)} km/h</strong>`;
   return `<header class="vehicle__header">
-      <span class="vehicle__badge live__badge" style="${badge}">${REGIONAL_PICTOGRAM}</span>
+      <span class="vehicle__badge live__badge" style="${badge}">${ship ? SHIP_PICTOGRAM : REGIONAL_PICTOGRAM}</span>
       <div class="vehicle__title">
         <div class="vehicle__dest">${escapeHtml(v.name)}</div>
-        <div class="vehicle__mode">${route}</div>
+        <div class="vehicle__mode">${subtitle}</div>
       </div>
       ${close}
     </header>
     <div class="vehicle__status">
-      ${v.speed !== null ? `<strong>${Math.round(v.speed)} km/h</strong>` : "Hastighet okänd"}
-      <span class="vehicle__eta">GPS ${age < 60 ? `${age} s` : `${Math.round(age / 60)} min`} sedan</span>
+      ${speed}
+      <span class="vehicle__eta">${ship ? "AIS" : "GPS"} ${age < 60 ? `${age} s` : `${Math.round(age / 60)} min`} sedan</span>
     </div>
     <footer class="vehicle__foot">
-      Position från Trafikverket, visad ${LIVE_LAG_S} s i efterhand · syns bara i live-läge
+      Position från ${ship ? "AISStream" : "Trafikverket"}, visad ${LIVE_LAG_S} s i efterhand · syns bara i live-läge
     </footer>`;
 }

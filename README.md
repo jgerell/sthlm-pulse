@@ -14,6 +14,8 @@ of the day to the last.
 - **Regional and long-distance trains.** SJ, Mälartåg, Arlanda Express and
   other trains outside SL, placed by GPS from Trafikverket. They have no
   timetable here, so they appear in live mode only.
+- **Ships.** Finland ferries, cruise ships and cargo ships from AIS, in live
+  mode only. Smaller boats are left out, so SL's own boats aren't shown twice.
 - **Road ferries.** Trafikverket's yellow ferries in the archipelago and on
   Mälaren (Vaxholmsleden, Ljusteröleden, Ekeröleden and more), from their
   timetable.
@@ -55,7 +57,8 @@ You need Node 22 or later and a free API key from
 **GTFS Regional Realtime** is optional; without it the map runs on the
 timetable alone. So is a key for
 [Trafikverket's open API](https://data.trafikverket.se), which adds regional
-and long-distance trains and road ferries.
+and long-distance trains and road ferries, and a key from
+[AISStream](https://aisstream.io) adds ships.
 
 ```bash
 cp .env.example .env    # add your Trafiklab keys
@@ -101,6 +104,7 @@ Browsers never talk to Trafiklab directly.
 
 Timetable and realtime data from SL via [Trafiklab](https://www.trafiklab.se).
 Train positions and ferry departures from [Trafikverket](https://data.trafikverket.se);
-ferry routes from OpenStreetMap.
+ferry routes and railway lines from OpenStreetMap; ship positions from
+[AISStream](https://aisstream.io).
 Map tiles © [CARTO](https://carto.com/attributions), map data ©
 [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors.

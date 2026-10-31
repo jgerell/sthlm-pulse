@@ -42,4 +42,6 @@ export const config = {
   },
   /** Optional: Trafikverket's open API, for regional and long-distance trains. */
   trafikverketKey: process.env.TRAFIKVERKET_API_KEY || null,
+  /** Optional: AISStream, for large ships. */
+  aisstreamKey: process.env.AISSTREAM_API_KEY || null,
 };

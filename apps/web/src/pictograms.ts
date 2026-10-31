@@ -28,6 +28,11 @@ export const ROAD_FERRY_PICTOGRAM = svg(
   `<path fill-rule="evenodd" d="M7.2 6h7.1c.6 0 1.1.3 1.4.8l1.6 2.7h.7a1 1 0 0 1 1 1v2H5v-2a1 1 0 0 1 1-1h.1l.7-2.5c.1-.6.7-1 1.4-1Zm.6 1.8-.5 1.7h7.9l-1-1.7Z"/><path d="M2 13.5h20l-2.2 4H4.2Z"/><path d="M2 20.2c1.7 0 1.7-.9 3.3-.9s1.7.9 3.4.9 1.6-.9 3.3-.9 1.7.9 3.3.9 1.7-.9 3.4-.9 1.6.9 3.3.9V22c-1.7 0-1.7-.9-3.3-.9s-1.7.9-3.4.9-1.6-.9-3.3-.9-1.7.9-3.3.9-1.7-.9-3.4-.9S3.7 22 2 22Z"/>`,
 );
 
+/** A large ship: a long hull with a raised bow, containers and the bridge aft. */
+export const SHIP_PICTOGRAM = svg(
+  `<path d="M1.5 14.5h21l-2.6 4.8H4.6Z"/><path d="M3.5 10.5h4v3h-4Zm5 0h4v3h-4Zm5 0h4v3h-4Z"/><path fill-rule="evenodd" d="M18.5 6h3v7.5h-3Zm.8 1.2v1.4h1.4V7.2Z"/>`,
+);
+
 /** A warning triangle with an exclamation mark cut out. */
 export const WARNING_PICTOGRAM = svg(
   `<path fill-rule="evenodd" d="M12 3 22 20.5H2Zm-1 6v5.5h2V9Zm0 7v2h2v-2Z"/>`,

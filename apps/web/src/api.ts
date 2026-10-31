@@ -156,7 +156,7 @@ export async function fetchFerries(): Promise<Ferries> {
 /** A vehicle placed by GPS (see apps/server/src/live/vehicles.ts). */
 export interface LiveVehicle {
   id: string;
-  kind: "train";
+  kind: "train" | "ship";
   lon: number;
   lat: number;
   /** Degrees clockwise from north. */
@@ -166,9 +166,12 @@ export interface LiveVehicle {
   /** When the position was measured (Unix seconds). */
   time: number;
   name: string;
+  /** Trains: the operator. Ships: the kind of ship. */
   operator: string;
   from: string;
   to: string;
+  /** Ships: length in meters. */
+  length?: number;
 }
 
 export async function fetchLive(): Promise<LiveVehicle[]> {

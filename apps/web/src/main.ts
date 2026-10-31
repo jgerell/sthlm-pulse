@@ -38,7 +38,7 @@ import {
 import { cardAlertsHtml, statsHtml, warningTooltipHtml } from "./info";
 import { buildFerryTrips, ferryCardHtml, type FerryTrip } from "./ferries";
 import { advanceTracks, liveCardHtml, liveTime, tracks, updateTracks, type LiveTrack } from "./live";
-import { PICTOGRAMS, REGIONAL_PICTOGRAM, ROAD_FERRY_PICTOGRAM } from "./pictograms";
+import { PICTOGRAMS, REGIONAL_PICTOGRAM, ROAD_FERRY_PICTOGRAM, SHIP_PICTOGRAM } from "./pictograms";
 import { stationCardHtml, upcomingTrips, type Realtime } from "./stationCard";
 import { applyDelay, buildAnimatedTrip, positionAt, type AnimatedTrip } from "./trips";
 
@@ -170,6 +170,8 @@ const state = {
   station: null as { id: number; details: StationDetails | null } | null,
   /** Regional and long-distance trains (GPS, live mode only) switched on. */
   showRegional: true,
+  /** Large ships (AIS, live mode only). */
+  showShips: true,
   /** Clicked GPS vehicle, by its live id. */
   liveSelected: null as string | null,
   /** Trafikverket's road ferries for the day, and their routes. */
@@ -577,7 +579,7 @@ function ferryDots(): FerryTrip[] {
 
 /** Fetches GPS vehicles; they're only shown live, so nothing is fetched otherwise. */
 async function refreshLive(): Promise<void> {
-  if (!state.live || !state.showRegional || document.hidden) return;
+  if (!state.live || !(state.showRegional || state.showShips) || document.hidden) return;
   try {
     updateTracks(await fetchLive());
     liveVersion++;
@@ -591,7 +593,24 @@ let liveVersion = 0;
 
 /** GPS vehicles drawn right now: only in live mode, and only when switched on. */
 function liveShown(): LiveTrack[] {
-  return state.live && state.showRegional ? [...tracks.values()] : [];
+  if (!state.live) return [];
+  return [...tracks.values()].filter((t) => liveKindShown(t.vehicle.kind));
+}
+
+function liveKindShown(kind: LiveTrack["vehicle"]["kind"]): boolean {
+  return kind === "ship" ? state.showShips : state.showRegional;
+}
+
+/** Ships are drawn larger, as the big vessels they are. */
+const LIVE_STYLE = {
+  train: { colorKey: "regional", radius: MODES.rail.dotRadius, trailWidth: MODES.rail.trailWidth },
+  ship: { colorKey: "ship", radius: 4.6, trailWidth: 3 },
+} as const;
+
+function liveCount(kind: LiveTrack["vehicle"]["kind"]): number {
+  let n = 0;
+  for (const t of tracks.values()) if (t.vehicle.kind === kind) n++;
+  return n;
 }
 
 function renderStats(): void {
@@ -955,8 +974,11 @@ function buildLayers(dots: Dot[], ferries: FerryTrip[], zoom: number) {
       data: live,
       getPath: (d) => d.path,
       getTimestamps: (d) => d.timestamps,
-      getColor: [...color(theme, "regional"), Math.min(255, MODES.rail.trailAlpha * settings.trailAlphaScale)],
-      getWidth: MODES.rail.trailWidth,
+      getColor: (d) => [
+        ...color(theme, LIVE_STYLE[d.vehicle.kind].colorKey),
+        Math.min(255, MODES.rail.trailAlpha * settings.trailAlphaScale),
+      ],
+      getWidth: (d) => LIVE_STYLE[d.vehicle.kind].trailWidth,
       widthUnits: "pixels",
       widthScale: scale.line,
       widthMinPixels: 1,
@@ -967,7 +989,7 @@ function buildLayers(dots: Dot[], ferries: FerryTrip[], zoom: number) {
       // GPS vehicles run on their own clock, a little behind real time (see live.ts).
       currentTime: liveTime(),
       // Paths grow with every new fix, so deck.gl re-reads them when fixes arrive.
-      updateTriggers: { getPath: liveVersion, getTimestamps: liveVersion },
+      updateTriggers: { getPath: liveVersion, getTimestamps: liveVersion, getColor: theme },
       parameters: settings.glow ? GLOW : NO_DEPTH,
     }),
     new ScatterplotLayer<LiveTrack>({
@@ -976,20 +998,20 @@ function buildLayers(dots: Dot[], ferries: FerryTrip[], zoom: number) {
       visible: settings.glow,
       data: live,
       getPosition: (d) => d.position,
-      getFillColor: [...color(theme, "regional"), 40],
-      getRadius: MODES.rail.dotRadius * 2,
+      getFillColor: (d) => [...color(theme, LIVE_STYLE[d.vehicle.kind].colorKey), 40],
+      getRadius: (d) => LIVE_STYLE[d.vehicle.kind].radius * 2,
       radiusUnits: "pixels",
       radiusScale: scale.dot,
       parameters: GLOW,
-      updateTriggers: { getPosition: state.simTime },
+      updateTriggers: { getPosition: state.simTime, getFillColor: theme },
     }),
     new ScatterplotLayer<LiveTrack>({
       id: "live-dots",
       ...under,
       data: live,
       getPosition: (d) => d.position,
-      getFillColor: color(theme, "regional"),
-      getRadius: MODES.rail.dotRadius,
+      getFillColor: (d) => color(theme, LIVE_STYLE[d.vehicle.kind].colorKey),
+      getRadius: (d) => LIVE_STYLE[d.vehicle.kind].radius,
       radiusUnits: "pixels",
       radiusScale: scale.dot,
       stroked: settings.dotRing !== null,
@@ -1234,8 +1256,8 @@ interface OtherRow {
   colorKey: ColorKey;
   get(): boolean;
   set(on: boolean): void;
-  /** Whether its route lines are drawn. */
-  lines: { get(): boolean; set(on: boolean): void };
+  /** Whether its route lines are drawn; ships have none. */
+  lines?: { get(): boolean; set(on: boolean): void };
   /** Filled in by buildOtherRow. */
   row?: HTMLElement;
   count?: HTMLElement;
@@ -1249,7 +1271,7 @@ const OTHER_ROWS: OtherRow[] = [
     get: () => state.showRegional,
     set(on) {
       state.showRegional = on;
-      if (!on && state.liveSelected) void selectTrip(null);
+      if (!on && state.liveSelected?.startsWith("train:")) void selectTrip(null);
       void refreshLive();
     },
     lines: {
@@ -1276,8 +1298,19 @@ const OTHER_ROWS: OtherRow[] = [
       },
     },
   },
+  {
+    label: "Fartyg",
+    pictogram: SHIP_PICTOGRAM,
+    colorKey: "ship",
+    get: () => state.showShips,
+    set(on) {
+      state.showShips = on;
+      if (!on && state.liveSelected?.startsWith("ship:")) void selectTrip(null);
+      void refreshLive();
+    },
+  },
 ];
-const [REGIONAL_ROW, FERRY_ROW] = OTHER_ROWS as [OtherRow, OtherRow];
+const [REGIONAL_ROW, FERRY_ROW, SHIP_ROW] = OTHER_ROWS as [OtherRow, OtherRow, OtherRow];
 
 function buildOtherRow(spec: OtherRow): HTMLElement {
   const li = document.createElement("li");
@@ -1289,19 +1322,19 @@ function buildOtherRow(spec: OtherRow): HTMLElement {
       <span class="mode__count"></span>
     </span>
     <button type="button" class="chip" title="Fordon" aria-label="Visa fordon: ${escapeHtml(spec.label)}">${VEHICLE_ICON}</button>
-    <button type="button" class="chip" title="Linjer" aria-label="Visa linjer: ${escapeHtml(spec.label)}">${LINE_ICON}</button>`;
+    ${spec.lines ? `<button type="button" class="chip" title="Linjer" aria-label="Visa linjer: ${escapeHtml(spec.label)}">${LINE_ICON}</button>` : ""}`;
   const [vehicles, lines] = li.querySelectorAll("button");
   const render = () => {
     vehicles!.setAttribute("aria-pressed", String(spec.get()));
-    lines!.setAttribute("aria-pressed", String(spec.lines.get()));
+    if (spec.lines) lines!.setAttribute("aria-pressed", String(spec.lines.get()));
     li.classList.toggle("is-off", !spec.get());
   };
   vehicles!.addEventListener("click", () => {
     spec.set(!spec.get());
     render();
   });
-  lines!.addEventListener("click", () => {
-    spec.lines.set(!spec.lines.get());
+  lines?.addEventListener("click", () => {
+    spec.lines!.set(!spec.lines!.get());
     saveOtherLines();
     render();
   });
@@ -1501,11 +1534,14 @@ function updatePanel(counts: Map<Mode, number>, ferries: number): void {
     countEls.get(mode)!.textContent = n.toLocaleString("sv-SE");
   }
   // GPS vehicles have no history, so outside live mode there's nothing to count.
-  if (state.live) {
-    total += tracks.size;
-    REGIONAL_ROW.count!.innerHTML = `<b>${tracks.size.toLocaleString("sv-SE")}</b> i trafik`;
-  } else {
-    REGIONAL_ROW.count!.textContent = "Syns bara live";
+  for (const [row, kind] of [[REGIONAL_ROW, "train"], [SHIP_ROW, "ship"]] as const) {
+    if (state.live) {
+      const n = liveCount(kind);
+      total += n;
+      row.count!.innerHTML = `<b>${n.toLocaleString("sv-SE")}</b> i trafik`;
+    } else {
+      row.count!.textContent = "Syns bara live";
+    }
   }
   total += ferries;
   FERRY_ROW.count!.innerHTML = `<b>${ferries.toLocaleString("sv-SE")}</b> i trafik`;
@@ -1654,9 +1690,10 @@ function updateVehicleCard(): void {
     return;
   }
   if (state.liveSelected) {
-    const track = state.live && state.showRegional ? tracks.get(state.liveSelected) : undefined;
+    const found = state.live ? tracks.get(state.liveSelected) : undefined;
+    const track = found && liveKindShown(found.vehicle.kind) ? found : undefined;
     if (track) {
-      const badge = badgeStyle(color(state.theme, "regional"));
+      const badge = badgeStyle(color(state.theme, LIVE_STYLE[track.vehicle.kind].colorKey));
       showCard(liveCardHtml(track.vehicle, badge, CLOSE_BUTTON));
       return;
     }
@@ -1871,7 +1908,7 @@ async function main(): Promise<void> {
     }
     dots.sort((a, b) => MODES[a.mode].dotRadius - MODES[b.mode].dotRadius);
 
-    if (state.live && state.showRegional) advanceTracks();
+    if (state.live) advanceTracks();
     followSelected();
     const ferries = ferryDots();
     overlay.setProps({ layers: buildLayers(dots, ferries, loadedMap.getZoom()) });
