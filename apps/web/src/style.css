@@ -81,8 +81,8 @@ button {
   width: var(--sidebar-w);
   background: var(--panel);
   border-right: 1px solid var(--border);
-  backdrop-filter: blur(16px) saturate(140%);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
   transition: transform 0.3s var(--ease), visibility 0s;
 }
 
@@ -119,8 +119,8 @@ button {
   border-color: var(--border);
   border-radius: 10px;
   background: var(--panel);
-  backdrop-filter: blur(16px) saturate(140%);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
   box-shadow: var(--shadow);
   color: var(--text);
 }
@@ -432,8 +432,8 @@ button {
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 16px;
-  backdrop-filter: blur(16px) saturate(140%);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
   box-shadow: var(--shadow);
   transform: translateX(calc(-50% + var(--sidebar-w) / 2));
   transition: transform 0.3s var(--ease), visibility 0s;
@@ -466,8 +466,8 @@ button {
   border: 1px solid var(--border);
   border-radius: 999px;
   background: var(--panel);
-  backdrop-filter: blur(16px) saturate(140%);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
   color: var(--muted);
   transform: translateX(-50%);
   transition: color 0.15s, background 0.15s;
@@ -490,8 +490,8 @@ button {
   border: 1px solid var(--border);
   border-radius: 999px;
   background: var(--panel);
-  backdrop-filter: blur(16px) saturate(140%);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
   box-shadow: var(--shadow);
   font-size: 13px;
   font-weight: 500;
@@ -803,8 +803,8 @@ button {
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 16px;
-  backdrop-filter: blur(16px) saturate(140%);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
   box-shadow: var(--shadow);
   font-size: 13px;
 }
@@ -1266,8 +1266,8 @@ button.departure:hover {
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--panel);
-  backdrop-filter: blur(16px) saturate(140%);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
   box-shadow: var(--shadow);
   font-family: "Barlow", system-ui, sans-serif;
   font-size: 12px;

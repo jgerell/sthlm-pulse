@@ -1792,6 +1792,22 @@ function updateVehicleCard(): void {
   showCard(html);
 }
 
+// While the server builds a new day's network (a minute or so after a fresh
+// timetable download) it doesn't answer yet, so the first load keeps trying.
+const NETWORK_RETRY_MS = 5000;
+
+async function fetchNetworkPatiently(): Promise<Network> {
+  for (;;) {
+    try {
+      return await fetchNetwork();
+    } catch (err) {
+      console.error(err);
+      els.loading.querySelector("span")!.textContent = "Servern hämtar dagens tidtabell, det kan ta en minut…";
+      await new Promise((resolve) => setTimeout(resolve, NETWORK_RETRY_MS));
+    }
+  }
+}
+
 function hideLoading(): void {
   els.loading.classList.add("is-hidden");
 }
@@ -1818,7 +1834,7 @@ async function main(): Promise<void> {
   padMap(false);
 
   const [network] = await Promise.all([
-    fetchNetwork(),
+    fetchNetworkPatiently(),
     new Promise<void>((resolve) => loadedMap.once("load", () => resolve())),
   ]);
   quietBaseMap(loadedMap, state.theme);
